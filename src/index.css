@@ -1,0 +1,37 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.year-axis .domain {
+  display: none;
+}
+
+.year-axis {
+  font-weight: 800;
+}
+
+.month-axis {
+  font-weight: 200;
+  font-variant: small-caps;
+  text-transform: lowercase;
+  font-style: italic;
+}
+
+.thoughtjourney-header {
+  text-align: center;
+  background-color: #222;
+  padding: 10px;
+  margin: 0;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 36pt;
+}
+
+.thoughtjourney-header .first-half {
+  font-weight: 600;
+}
+.thoughtjourney-header .second-half {
+  font-weight: 300;
+}
