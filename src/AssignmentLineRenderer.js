@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 class AssignmentLineRenderer {
 
   constructor(lineNodes, timeline, peopleline, dimensions) {
-    this._peopleAxisOffset = 40;
+    this._peopleAxisOffset = 70;
     this.timeline = timeline;
     this.peopleline = peopleline;
     this.dimensions = dimensions;

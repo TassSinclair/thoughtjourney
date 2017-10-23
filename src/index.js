@@ -8,7 +8,7 @@ import AssignmentNodeRenderer from './AssignmentNodeRenderer'
 import AssignmentLineRenderer from './AssignmentLineRenderer';
 import JigsawService from './JigsawService';
 
-var margins = {top: 50, right: 280, bottom: 50, left: 280};
+var margins = {top: 50, right: 310, bottom: 50, left: 310};
 
 var svgContainer = d3.select('body').append('svg');
 
@@ -20,18 +20,14 @@ const personPromises = Promise.all(usernames.map((i) => jigsawService.getPersonB
 
 const assignmentsPromises = personPromises.then((people) =>
   Promise.all(people.map((person) => jigsawService.getAssignmentsForPerson(person)))
-).catch(() => {
-  svgContainer
-    .append('g')
-    .attr('transform', 'translate(100, 100)')
-    .append('text')
-    .style('font-size', '48px')
-    .text('😟')
-});
+)
 
 Promise.all([personPromises, assignmentsPromises]).then(([people, allAssignments]) => {
 
-  const firstHireDate = (people) => people.map((person) => person.hireDate).sort().pop();
+  const compareDates = (a, b) => b.diff(a)
+  const firstHireDate = (people) => (
+    people.map((person) => person.hireDate).sort(compareDates).pop()
+  );
   const timeline = new Timeline(firstHireDate(people), new Date(), margins);
   const width = margins.left + timeline.width + margins.right;
   const peopleline = new Peopleline(people, margins, width);

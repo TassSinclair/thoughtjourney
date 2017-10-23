@@ -15,54 +15,47 @@ class Peopleline {
 
   plot = (person) => this.scale(person.name);
 
-  render(svgContainer) {
-    svgContainer.append('g')
-      .attr('class', 'person-axis person-axis-left')
-      .attr('transform', `translate(${this.axisWidth}, 20)`)
-      .call(d3.axisLeft(this.scale));
+  renderImagePattern(svgContainer, person) {
+    svgContainer.select('defs')
+          .append('pattern')
+          .attr('id', `picture-${person.user}`)
+          .attr('height', '100%')
+          .attr('width', '100%')
+          .attr('patternContentUnits', 'objectBoundingBox')
+          .attr('viewBox', '0 0 1 1')
+          .attr('preserveAspectRatio', 'xMidYMid slice')
+          .append('svg:image')
+          .attr('xlink:href', person.picture)
+          .attr('width', 1)
+          .attr('height', 1)
+          .attr('preserveAspectRatio', 'xMidYMid slice');
+  }
+
+  renderAxisSide(svgContainer, side) {
+    const vars = (side === 'left') ?
+      {posX: this.axisWidth, scale: d3.axisLeft(this.scale), imageX: -28, textX: -55} :
+      {posX: this.spanX - this.axisWidth, scale: d3.axisRight(this.scale), imageX: 28, textX: 55};
 
     svgContainer.append('g')
-      .attr('class', 'person-axis person-axis-right')
-      .attr('transform', `translate(${this.spanX - this.axisWidth}, 20)`)
-      .call(d3.axisRight(this.scale));
-
-    svgContainer.append('defs').append('clipPath')
-      .attr('id', 'circleClip1')
-      .append('circle')
-      .attr('stroke', '#000000')
-      .attr('cx', -28)
-      .attr('r', 20)
-      svgContainer.select('defs').append('clipPath')
-        .attr('id', 'circleClip2')
-        .append('circle')
-        .attr('stroke', '#000000')
-        .attr('cx', 28)
-        .attr('r', 20)
-
-    svgContainer.selectAll('.person-axis-left .tick text').attr('x', -55);
-    svgContainer.selectAll('.person-axis-right .tick text').attr('x', 55);
-
-    svgContainer.selectAll('.person-axis-left .tick')
+      .attr('class', `person-axis person-axis-${side}`)
+      .attr('transform', `translate(${vars.posX}, 20)`)
+      .call(vars.scale);
+    svgContainer.selectAll(`.person-axis-${side} .tick`)
           .data(this.people)
-          .append("svg:image")
-          .attr("xlink:href", function (d) { return d.picture ; })
-          .attr("width", 40)
-          .attr("height", 40)
-          .attr("x", -48)
-          .attr('clip-path', 'url(#circleClip1)')
-          .attr("y", -20);
+          .append('circle')
+          .attr('r', 20)
+          .attr('cx', vars.imageX)
+          .attr('fill', (d) => `url(#picture-${d.user})`)
 
-          svgContainer.selectAll('.person-axis-right .tick')
-                .data(this.people)
-                .append("svg:image")
-                .attr("xlink:href", function (d) { return d.picture ; })
-                .attr("width", 40)
-                .attr("height", 40)
-                .attr("x", 8)
-                .attr('clip-path', 'url(#circleClip2)')
-                .attr("y", -20);
+    svgContainer.selectAll(`.person-axis-${side} .tick text`)
+          .attr('x', vars.textX)
+  }
 
-
+  render(svgContainer) {
+    svgContainer.append('defs');
+    this.people.forEach((person) => this.renderImagePattern(svgContainer, person));
+    this.renderAxisSide(svgContainer, 'left');
+    this.renderAxisSide(svgContainer, 'right');
   }
 }
 

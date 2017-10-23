@@ -27,6 +27,7 @@ class JigsawService {
     return this.api.get(`people/${id}`)
       .then((data) => ({
         id: data.employeeId,
+        user: data.loginName,
         name: data.preferredName,
         picture: data.picture.url,
         hireDate: moment(data.hireDate, 'YYYY-MM-DD'),

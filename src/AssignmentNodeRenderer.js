@@ -29,6 +29,7 @@ class AssignmentNodeRenderer {
   _mergeWithSameName = function(assignment, i, assignments) {
     const lastAssignment = assignments[i - 1];
     if (lastAssignment && lastAssignment.account === assignment.account) {
+      assignments[i] = lastAssignment;
       lastAssignment.endDate = assignment.endDate;
       return false;
     }
@@ -98,9 +99,10 @@ class AssignmentNodeRenderer {
 
   update() {
     const withinY = (y) => Math.max(80, y);
-    this.nodes.attr('transform', (d) => (
-      `translate(${d.x - d.width/2}, ${d.y = withinY(d.y)})`
-    ));
+    this.nodes &&
+      this.nodes.attr('transform', (d) => (
+        `translate(${d.x - d.width/2}, ${d.y = withinY(d.y)})`
+      ));
   }
 }
 
