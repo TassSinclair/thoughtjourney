@@ -12,22 +12,27 @@ class JigsawService {
     this.api.interceptors.response.use((response) => response.data);
   }
 
-  getAssignmentsForPerson(person) {
-    return this.api.get(`assignments?employee_ids=${person.id}`)
+  getAssignmentsForPeople(people) {
+    const start = people.reduce((acc, person) => (acc[person.employeeId] = []) && acc, {});
+    return this.api.get('assignments', { params: { 'employee_ids' : people.map((i) => i.employeeId) }})
       .then((data) => data.map((datum) => ({
         startDate: moment(datum.duration.startsOn, 'DD-MM-YYYY'),
         endDate: moment(datum.duration.endsOn, 'DD-MM-YYYY'),
         account: datum.account.name,
         project: datum.project.name,
-        person,
-      })));
+        person: people.find((i) => i.employeeId === datum.consultant.employeeId)
+        }),
+      ).reduce((acc, assignment) => {
+        acc[assignment.person.employeeId].push(assignment);
+        return acc;
+      }, start));
   }
 
   getPersonByUsername(id) {
     return this.api.get(`people/${id}`)
       .then((data) => ({
-        id: data.employeeId,
-        user: data.loginName,
+        employeeId: data.employeeId,
+        username: data.loginName,
         name: data.preferredName,
         picture: data.picture.url,
         hireDate: moment(data.hireDate, 'YYYY-MM-DD'),

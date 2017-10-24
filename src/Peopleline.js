@@ -18,7 +18,7 @@ class Peopleline {
   renderImagePattern(svgContainer, person) {
     svgContainer.select('defs')
           .append('pattern')
-          .attr('id', `picture-${person.user}`)
+          .attr('id', `picture-${person.username}`)
           .attr('height', '100%')
           .attr('width', '100%')
           .attr('patternContentUnits', 'objectBoundingBox')
@@ -45,7 +45,7 @@ class Peopleline {
           .append('circle')
           .attr('r', 20)
           .attr('cx', vars.imageX)
-          .attr('fill', (d) => `url(#picture-${d.user})`)
+          .attr('fill', (d) => `url(#picture-${d.username})`)
 
     svgContainer.selectAll(`.person-axis-${side} .tick text`)
           .attr('x', vars.textX)

@@ -14,21 +14,22 @@ var svgContainer = d3.select('body').append('svg');
 
 const jigsawService = new JigsawService(config.apiKey);
 
-const usernames = ['ajham'];
+const usernames = ['ajham', 'jgammie', 'rboucher'];
 
 const personPromises = Promise.all(usernames.map((i) => jigsawService.getPersonByUsername(i)));
 
 const assignmentsPromises = personPromises.then((people) =>
-  Promise.all(people.map((person) => jigsawService.getAssignmentsForPerson(person)))
-)
+  jigsawService.getAssignmentsForPeople(people)
+);
 
-Promise.all([personPromises, assignmentsPromises]).then(([people, allAssignments]) => {
+Promise.all([personPromises, assignmentsPromises]).then(([people, assignments]) => {
 
   const compareDates = (a, b) => b.diff(a)
   const firstHireDate = (people) => (
     people.map((person) => person.hireDate).sort(compareDates).pop()
   );
   const timeline = new Timeline(firstHireDate(people), new Date(), margins);
+
   const width = margins.left + timeline.width + margins.right;
   const peopleline = new Peopleline(people, margins, width);
   const height = margins.top + peopleline.height + margins.bottom
@@ -46,9 +47,9 @@ Promise.all([personPromises, assignmentsPromises]).then(([people, allAssignments
     .style('font-size','14pt')
     .style('font-family','Open Sans');
 
-  const assignmentNodeRenderers = allAssignments.map((assignments) => (
-    new AssignmentNodeRenderer(assignments, timeline, dimensions))
-  );
+  const assignmentNodeRenderers = people.map((person) => (
+    new AssignmentNodeRenderer(assignments[person.employeeId], timeline, dimensions)
+  ));
 
   const assignmentLineRenderers = assignmentNodeRenderers.map((i) => (
     new AssignmentLineRenderer(i.nodeData, timeline, peopleline, dimensions))
