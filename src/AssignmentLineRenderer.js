@@ -2,13 +2,13 @@ import * as d3 from 'd3';
 
 class AssignmentLineRenderer {
 
-  constructor(lineNodes, timeline, peopleline, dimensions) {
+  constructor(lineNodes, person, timeline, peopleline, dimensions) {
     this._peopleAxisOffset = 70;
     this.timeline = timeline;
     this.peopleline = peopleline;
     this.dimensions = dimensions;
     this.lineNodes = lineNodes;
-    this._allLines = this._buildAllLines(lineNodes, lineNodes[0].person);
+    this._allLines = this._buildAllLines(lineNodes, person);
 
   }
 

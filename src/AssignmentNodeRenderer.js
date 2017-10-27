@@ -1,13 +1,15 @@
 class AssignmentNodeRenderer {
-  constructor(assignments, timeline, dimensions) {
+  constructor(assignments, person, timeline, dimensions) {
     this.timeline = timeline;
+    this.person = person;
     this.dimensions = dimensions;
     this.nodeData = assignments
       .filter((it) => timeline.visibleOnTimeline(it))
       .map((it) => timeline.trimEventForTimeline(it))
       .sort(this._compareByStartDate)
-      .filter(this._mergeWithSameName)
-      .map(this._toNonOverlappingDates).reduce(this._flatten)
+      .map(this._toNonOverlappingDates).reduce(this._flatten, [])
+      .map(this._extractProjects)
+      .filter(this._mergeAdjacentAssignments)
       .map(this._toProjectNodes);
   }
 
@@ -26,11 +28,20 @@ class AssignmentNodeRenderer {
     a.startDate === b.startDate ? 0 : a.startDate > b.startDate ? 1 : -1
   );
 
-  _mergeWithSameName = function(assignment, i, assignments) {
+  _extractProjects = ({ startDate, endDate, account, project, person}) => ({
+    startDate,
+    endDate,
+    account,
+    projects: [project],
+    person,
+  });
+
+  _mergeAdjacentAssignments = function(assignment, i, assignments) {
     const lastAssignment = assignments[i - 1];
     if (lastAssignment && lastAssignment.account === assignment.account) {
       assignments[i] = lastAssignment;
       lastAssignment.endDate = assignment.endDate;
+      lastAssignment.projects = lastAssignment.projects.concat(assignment.projects);
       return false;
     }
     return true;

@@ -48,21 +48,21 @@ Promise.all([personPromises, assignmentsPromises]).then(([people, assignments]) 
     .style('font-family','Open Sans');
 
   const assignmentNodeRenderers = people.map((person) => (
-    new AssignmentNodeRenderer(assignments[person.employeeId], timeline, dimensions)
+    new AssignmentNodeRenderer(assignments[person.employeeId], person, timeline, dimensions)
   ));
 
   const assignmentLineRenderers = assignmentNodeRenderers.map((i) => (
-    new AssignmentLineRenderer(i.nodeData, timeline, peopleline, dimensions))
+    new AssignmentLineRenderer(i.nodeData, i.person, timeline, peopleline, dimensions))
   );
 
   assignmentLineRenderers.forEach((i) => i.render(svgContainer));
   assignmentNodeRenderers.forEach((i) => i.render(svgContainer));
 
-  const flatten = (a, b) => a.concat(b)
+  const flatten = (acc, i) => acc.concat(i)
 
   d3.forceSimulation(assignmentNodeRenderers.map((i) => i.nodeData).reduce(flatten))
     .force('x', d3.forceX((d, i) => d.midX).strength(1))
-    .force('y', d3.forceY((d) => peopleline.plot(d.person)).strength(0.03))
+    .force('y', d3.forceY((d) => peopleline.plot(d.person)).strength(0.08))
     .force('collision', ellipseForce())
     .on('tick', () => {
       assignmentNodeRenderers.forEach((i) => i.update());

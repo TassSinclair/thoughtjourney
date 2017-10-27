@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 class Peopleline {
   constructor(people, margins, spanX) {
     this.people = people;
-    this.height = people.length * 200;
+    this.height = people.length * 160;
     this.spanX = spanX;
     this.margins = margins;
     this.axisWidth = 240;
