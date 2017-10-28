@@ -19,7 +19,7 @@ body {
   font-style: italic;
 }
 
-.thoughtjourney-header {
+.thoughtventure-header {
   text-align: center;
   background-color: #222;
   padding: 10px;
@@ -29,9 +29,9 @@ body {
   font-size: 36pt;
 }
 
-.thoughtjourney-header .first-half {
+.thoughtventure-header .first-half {
   font-weight: 600;
 }
-.thoughtjourney-header .second-half {
+.thoughtventure-header .second-half {
   font-weight: 300;
 }

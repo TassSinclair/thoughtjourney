@@ -1,4 +1,4 @@
-# ThoughtJourney
+# ThoughtVenture
 
 Inspired by [XKCD's movie narrative charts](https://xkcd.com/657/large/)
 
