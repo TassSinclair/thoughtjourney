@@ -1,5 +1,7 @@
 class AssignmentNodeRenderer {
+
   constructor(assignments, person, timeline, dimensions) {
+    this._distanceFromLine = 16;
     this.timeline = timeline;
     this.person = person;
     this.dimensions = dimensions;
@@ -28,7 +30,7 @@ class AssignmentNodeRenderer {
     a.startDate === b.startDate ? 0 : a.startDate > b.startDate ? 1 : -1
   );
 
-  _extractProjects = ({ startDate, endDate, account, project, person}) => ({
+  _extractProjects = ({ startDate, endDate, account, project, person }) => ({
     startDate,
     endDate,
     account,
@@ -87,33 +89,40 @@ class AssignmentNodeRenderer {
             .data(this.nodeData)
             .enter()
             .append('g');
-    const rects = this.nodes.append('rect')
+    const rects = this.nodes.append('rect');
+    this.lines = this.nodes.append('line');
 
     this.nodes
-            .append('text').text((i) => i.account)
+            .append('text').text((i) => /*i.account*/ 'client name')
             .style('font-weight', '600')
             .style('font-style', 'italic')
             .style('fill', '#fff')
-            .attr('y', -12)
+            .attr('y', -this._distanceFromLine)
             .each((d, i, elements) => {
               d.width = elements[i].getBBox().width;
               d.rx = (d.width / 2) + 10;
               d.ry = 30;
-            })
+            });
     rects
             .style('fill', '#b51557')
             .attr('x', -8)
-            .attr('y', -32)
+            .attr('y', -this._distanceFromLine - 20)
             .attr('width', (d) => d.width + 16)
             .attr('height', 30);
+    this.lines
+            .attr('stroke-width', 5)
+            .attr('stroke-linecap', 'round')
+            .attr('stroke', '#911146');
   }
 
   update() {
     const withinY = (y) => Math.max(80, y);
-    this.nodes &&
-      this.nodes.attr('transform', (d) => (
-        `translate(${d.x - d.width/2}, ${d.y = withinY(d.y)})`
-      ));
+    this.nodes.attr('transform', (d) => (
+      `translate(${d.x - d.width/2}, ${d.y = withinY(d.y)})`
+    ));
+    this.lines
+      .attr('x1', (d) => ((d.width/2) - (d.x - d.startX) + 3))
+      .attr('x2', (d) => ((d.width/2) + (d.endX - d.x) - 3));
   }
 }
 
