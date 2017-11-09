@@ -15,7 +15,7 @@ class JigsawService {
     return this.api.get('assignments', {params: {...params, page }})
       .then((response) => (
         page < response.headers['x-total-pages'] ?
-        this._getAssignments(params, page + 1, response.data) : response.data
+          this._getAssignments(params, page + 1, response.data) : response.data
       ))
       .then((data) => previousData.concat(data));
   };

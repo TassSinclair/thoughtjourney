@@ -93,7 +93,7 @@ class AssignmentNodeRenderer {
     this.lines = this.nodes.append('line');
 
     this.nodes
-            .append('text').text((i) => /*i.account*/ 'client name')
+            .append('text').text((i) => i.account)
             .style('font-weight', '600')
             .style('font-style', 'italic')
             .style('fill', '#fff')
