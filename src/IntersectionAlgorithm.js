@@ -24,10 +24,7 @@ class IntersectionAlgorithm {
     const durations = inputs;//.map((i) => i.duration);
 
     return durations.reduce((acc, item) => {
-      console.log('comparing', acc, item);
-      // const toReturn = acc.concat(this._takeLast(acc, (last) => this._processOverlap(last, item) : [item]));
       const toReturn = acc.concat(this._takeLast(acc, (last) => this._processOverlap(last, item), [item]));
-      console.log('returning', toReturn);
       return toReturn;
     }, []);
   }

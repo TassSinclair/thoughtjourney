@@ -7,6 +7,10 @@ import Peopleline from './Peopleline';
 import AssignmentNodeRenderer from './AssignmentNodeRenderer'
 import AssignmentLineRenderer from './AssignmentLineRenderer';
 import JigsawService from './JigsawService';
+import moment from 'moment';
+import { extendMoment as withMomentRange } from 'moment-range';
+
+withMomentRange(moment);
 
 var margins = {top: 50, right: 310, bottom: 50, left: 310};
 
@@ -28,7 +32,7 @@ Promise.all([personPromises, assignmentsPromises]).then(([people, assignments]) 
   const firstHireDate = (people) => (
     people.map((person) => person.hireDate).sort(compareDates).pop()
   );
-  const timeline = new Timeline(firstHireDate(people), new Date(), margins);
+  const timeline = new Timeline(moment.range(firstHireDate(people), new Date()), margins);
 
   const width = margins.left + timeline.width + margins.right;
   const peopleline = new Peopleline(people, margins, width);

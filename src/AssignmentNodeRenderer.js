@@ -1,3 +1,8 @@
+import moment from 'moment';
+import { extendMoment as withMomentRange } from 'moment-range';
+
+withMomentRange(moment);
+
 class AssignmentNodeRenderer {
 
   constructor(assignments, person, timeline, dimensions) {
@@ -18,31 +23,30 @@ class AssignmentNodeRenderer {
   _toProjectNodes = (assignment) => (
       {
         ...assignment,
-        startX: this.timeline.plot(assignment.startDate),
-        midX: this.timeline.plotBetween(assignment.startDate, assignment.endDate),
-        endX: this.timeline.plot(assignment.endDate),
+        startX: this.timeline.plot(assignment.duration.start),
+        midX: this.timeline.plotBetween(assignment.duration.start, assignment.duration.end),
+        endX: this.timeline.plot(assignment.duration.end),
       }
   );
 
   _flatten = (a, b) => a.concat(b);
 
   _compareByStartDate = (a, b) => (
-    a.startDate === b.startDate ? 0 : a.startDate > b.startDate ? 1 : -1
+    a.duration.start === b.duration.start ? 0 : a.duration.start > b.duration.start ? 1 : -1
   );
 
-  _extractProjects = ({ startDate, endDate, account, project, person }) => ({
-    startDate,
-    endDate,
+  _extractProjects = ({ account, project, person, duration }) => ({
     account,
     projects: [project],
     person,
+    duration,
   });
 
   _mergeAdjacentAssignments = function(assignment, i, assignments) {
     const lastAssignment = assignments[i - 1];
     if (lastAssignment && lastAssignment.account === assignment.account) {
       assignments[i] = lastAssignment;
-      lastAssignment.endDate = assignment.endDate;
+      lastAssignment.duration.end = assignment.duration.end;
       lastAssignment.projects = lastAssignment.projects.concat(assignment.projects);
       return false;
     }
@@ -50,33 +54,40 @@ class AssignmentNodeRenderer {
   }
 
   _assignmentsNotOverlapping = (assignment1, assignment2) => (
-    !assignment2 || assignment1.endDate <= assignment2.startDate
+    !assignment2 || assignment1.duration.end <= assignment2.duration.start
+    // !(assignment2 && assignment1.duration.overlaps(assignment2.duration))
   );
 
-  _assignmentStartBeforeEndOverlap = (assignment1, assignment2) => (
-    assignment1.endDate < assignment2.endDate
+  _assignmentsOverlapIncompletely = (assignment1, assignment2) => (
+    assignment1.duration.end < assignment2.duration.end
   );
 
-  _withStartDate = (assignment, startDate) => (
-    { ...assignment, startDate }
+  _withStartingAfter = (assignment, startAfter) => (
+    {
+      ...assignment,
+      duration: moment.range(startAfter.end, assignment.duration.end)
+    }
   )
 
-  _withEndDate = (assignment, endDate) => (
-    { ...assignment, endDate }
+  _withEndingBefore = (assignment, endBefore) => (
+    {
+      ...assignment,
+      duration: moment.range(assignment.duration.start, endBefore.start)
+    }
   )
 
   _toNonOverlappingDates = (assignment, i, assignments) => {
     const nextAssignment = assignments[i + 1];
-
+    // No overlap, return just this assignment.
     if (this._assignmentsNotOverlapping(assignment, nextAssignment)) {
       return [assignment];
     }
 
-    if (this._assignmentStartBeforeEndOverlap(assignment, nextAssignment)) {
-      return [this._withEndDate(assignment, nextAssignment.startDate)];
+    if (this._assignmentsOverlapIncompletely(assignment, nextAssignment)) {
+      return [this._withEndingBefore(assignment, nextAssignment.duration)];
     }
-    assignments[i + 1] = this._withStartDate(assignment, nextAssignment.endDate);
-    return [this._withEndDate(assignment, nextAssignment.startDate), nextAssignment];
+    assignments[i + 1] = this._withStartingAfter(assignment, nextAssignment.duration);
+    return [this._withEndingBefore(assignment, nextAssignment.duration), nextAssignment];
   };
 
   render(svgContainer) {

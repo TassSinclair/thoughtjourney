@@ -1,31 +1,35 @@
 import * as d3 from 'd3';
 import moment from 'moment';
+import { extendMoment as withMomentRange } from 'moment-range';
+
+withMomentRange(moment);
 
 class Timeline {
-  constructor(startDate, endDate, margins) {
-    this.startDate = moment(startDate);
-    this.endDate = moment(endDate);
+  constructor(duration, margins) {
+    this.duration = duration;
     this.startPoint = margins.left;
-    this.endPoint = moment.duration(endDate - startDate).asDays() * 1.5;
+    this.endPoint = duration.diff('days') * 1.5;
     this.scale = d3.scaleTime()
-      .domain([startDate, endDate])
+      .domain([duration.start, duration.end])
       .range([this.startPoint, this.endPoint]);
     this.width = this.endPoint - this.startPoint;
   }
 
   yearTickValues = () => (
-    [this.startDate, ...d3.timeYears(this.startDate, this.endDate, 1), this.endDate]
+    [this.duration.start, ...d3.timeYears(this.duration.start, this.duration.end, 1), this.duration.end]
   );
 
   visibleOnTimeline = (anEvent) => (
-    anEvent.startDate < this.endDate && anEvent.endDate > this.startDate
+    anEvent.duration.start < this.duration.end && anEvent.duration.end > this.duration.start
   );
 
   trimEventForTimeline = (anEvent) => (
     {
       ...anEvent,
-      endDate: anEvent.endDate > this.endDate ? this.endDate : anEvent.endDate,
-      startDate: anEvent.startDate < this.startDate ? this.startDate : anEvent.startDate
+      duration: moment.range(
+        anEvent.duration.start < this.duration.start ? this.duration.start : anEvent.duration.start,
+        anEvent.duration.end > this.duration.end ? this.duration.end : anEvent.duration.end,
+      )
     }
   );
 

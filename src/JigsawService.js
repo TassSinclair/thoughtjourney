@@ -20,14 +20,18 @@ class JigsawService {
       .then((data) => previousData.concat(data));
   };
 
+  _ddmmyyyyToMoment = (dateString) => moment(dateString, 'DD-MM-YYYY');
+
   getAssignmentsForPeople(people) {
     const employeeIdGroups = people.reduce((acc, person) => (acc[person.employeeId] = []) && acc, {});
 
-    return Promise.resolve(offlineAssignments)
-    // return this._getAssignments({ 'employee_ids' : people.map((i) => i.employeeId)})
+    // return Promise.resolve(offlineAssignments)
+    return this._getAssignments({ 'employee_ids' : people.map((i) => i.employeeId)})
       .then((data) => data.map((datum) => ({
-        startDate: moment(datum.duration.startsOn, 'DD-MM-YYYY'),
-        endDate: moment(datum.duration.endsOn, 'DD-MM-YYYY'),
+        duration: moment.range(
+          this._ddmmyyyyToMoment(datum.duration.startsOn),
+          this._ddmmyyyyToMoment(datum.duration.endsOn)
+        ),
         account: datum.account.name,
         project: {id: datum.project.id, name: datum.project.name},
         person: people.find((i) => i.employeeId === datum.consultant.employeeId)
@@ -39,8 +43,8 @@ class JigsawService {
   }
 
   getPersonByUsername(id) {
-    // return this.api.get(`people/${id}`)
-    return Promise.resolve({data: offlinePeople[id]})
+    return this.api.get(`people/${id}`)
+    // return Promise.resolve({data: offlinePeople[id]})
       .then(({data}) => ({
         employeeId: data.employeeId,
         username: data.loginName,
